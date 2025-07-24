@@ -42,16 +42,17 @@ pipeline {
         stage('SonarQube Analysis'){
             steps {
                 echo 'Running Static Code Analysis with SonarQube'
-		withCredentials([string(credentialsId: 'sonartoken', variable: 'sonarToken')]) {
-   			withSonarQubeEnv('sonar') {
-				sh '''
-					${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-  					-Dsonar.projectKey=jenkinsgcp \
-  					-Dsonar.sources=. \
-  					-Dsonar.host.url=http://172.18.0.3:9000 \
-       					-Dsonar.java.binaries=target/classes \
-  					-Dsonar.token=$sonarToken
-    				'''
+		withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
+    			withSonarQubeEnv(credentialsId: 'sonar') {
+    					sh '''
+	 					${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+  						-Dsonar.projectKey=jenkinsgcp \
+  						-Dsonar.sources=. \
+  						-Dsonar.host.url=http://192.168.160.128:9000 \
+						-Dsonar.java.binaries=target/calsses \
+  						-Dsonar.token=$sonarToken
+	 				'''
+				}
 			}
 		}
             }
