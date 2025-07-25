@@ -43,16 +43,15 @@ pipeline {
             steps {
                 echo 'Running Static Code Analysis with SonarQube'
 		withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
-    			withSonarQubeEnv(credentialsId: 'sonar') {
-    					sh '''
-	 					${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-  						-Dsonar.projectKey=jenkinsgcp \
-  						-Dsonar.sources=. \
-  						-Dsonar.host.url=http://192.168.160.128:9000 \
-						-Dsonar.java.binaries=target/classes \
-  						-Dsonar.token=$sonarToken
-	 				'''
-				}
+   			withSonarQubeEnv('sonar') {
+				sh '''
+					${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+  					-Dsonar.projectKey=jenkinsgcp \
+  					-Dsonar.sources=. \
+  					-Dsonar.host.url=http://192.168.160.128:9000 \
+       					-Dsonar.java.binaries=target/classes \
+  					-Dsonar.token=$sonarToken
+    				'''
 			}
 		}
             }
@@ -82,26 +81,26 @@ pipeline {
 	stage('Authenticate with GCP, Tag & Push to Artifact Registry') {
             steps {
 		echo 'Authenticate with GCP, tag and Push Image to Artifact Registry'
-		withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
-    			withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
-				sh '''
-					echo Activating GCP service account...
-                    			gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                    			gcloud config set project $GCP_PROJECT_ID
+		// withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
+  //   			withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+		// 		sh '''
+		// 			echo Activating GCP service account...
+  //                   			// gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+  //                   			// gcloud config set project $GCP_PROJECT_ID
 		       
-                    			echo Configuring Docker to use gcloud credentials...
-                    			gcloud auth configure-docker us-docker.pkg.dev --quiet
-    				'''
-				script {
-					sh '''
-						gcloud artifacts repositories create java-app-repo-${IMAGE_TAG} --repository-format=docker --location=us --description="Docker repository" --project=$GCP_PROJECT_ID
-     					'''
-					sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
-					sh "docker push ${FULL_IMAGE_NAME}"
-					echo "Image pushed to: ${FULL_IMAGE_NAME}"
-				}
-			}
-		}
+  //                   			echo Configuring Docker to use gcloud credentials...
+  //                   			// gcloud auth configure-docker us-docker.pkg.dev --quiet
+  //   				'''
+		// 		script {
+		// 			sh '''
+		// 				gcloud artifacts repositories create java-app-repo-${IMAGE_TAG} --repository-format=docker --location=us --description="Docker repository" --project=$GCP_PROJECT_ID
+  //    					'''
+		// 			sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${FULL_IMAGE_NAME}"
+		// 			sh "docker push ${FULL_IMAGE_NAME}"
+		// 			echo "Image pushed to: ${FULL_IMAGE_NAME}"
+		// 		}
+		// 	}
+		// }
             }
         }
 	stage('Deploy to Cloud Run') {
@@ -141,5 +140,4 @@ pipeline {
             		}
        	 	}
 	}
-}
 }
