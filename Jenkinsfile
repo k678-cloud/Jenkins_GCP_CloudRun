@@ -77,13 +77,11 @@ pipeline {
   			trivy --severity HIGH,CRITICAL --cache-dir ${WORKSPACE}/.trivy-cache --no-progress --format table -o trivyFSScanReport.html image ${IMAGE_NAME}:${IMAGE_TAG}
      		'''
             }
-	    steps{
-		    influxDbPublisher(
-		    selectedTarget: 'jenkins-metrics',
-                    customProjectName: 'MyProject',
-                    customData: [field_a: 42, field_b: 99],
-                    customDataTags: [env: 'production'])
-
+	     influxDbPublisher(
+	     selectedTarget: 'jenkins-metrics',
+             customProjectName: 'MyProject',
+             customData: [field_a: 42, field_b: 99],
+             customDataTags: [env: 'production'])
 	    }
         }
 	stage('Authenticate with GCP, Tag & Push to Artifact Registry') {
