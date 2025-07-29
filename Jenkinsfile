@@ -77,12 +77,25 @@ pipeline {
   			trivy --severity HIGH,CRITICAL --cache-dir ${WORKSPACE}/.trivy-cache --no-progress --format table -o trivyFSScanReport.html image ${IMAGE_NAME}:${IMAGE_TAG}
      		'''
             
-	     influxDbPublisher(
-	     selectedTarget: 'jenkins-metrics',
-             // customProjectName: 'MyProject',
-             // customData: [field_a: 42, field_b: 99],
-             // customDataTags: [env: 'production'])
+	     // influxDbPublisher(
+	     // selectedTarget: 'jenkins-metrics',
+      //        customProjectName: 'MyProject',
+      //        customData: [field_a: 42, field_b: 99],
+      //        customDataTags: [env: 'production'])
+
+		    // jenkins-org
+		    // http://192.168.160.128:8086
 	    }
+        }
+        stage('Publish Metrics to InfluxDB') {
+            steps {
+                influxDbPublisher(
+                    selectedTarget: 'jenkins-metrics',
+                    customProjectName: 'jenkins-org',
+                    customData: [scan_status: 1, build_time: 42],
+                    customDataTags: [env: 'dev', team: 'backend']
+                )
+            }
         }
 	stage('Authenticate with GCP, Tag & Push to Artifact Registry') {
             steps {
