@@ -89,12 +89,12 @@ pipeline {
         }
         stage('Publish Metrics to InfluxDB') {
             steps {
-                // influxDbPublisher(
-                //     selectedTarget: 'jenkins-metrics',
-                //     customProjectName: 'jenkins-org',
-                //     customData: [scan_status: 1, build_time: 42],
-                //     customDataTags: [env: 'dev', team: 'backend']
-                // )
+                influxDbPublisher(
+                    selectedTarget: 'influxdb',
+                    customProjectName: 'jenkins-org',
+                    customData: [scan_status: 1, build_time: 42],
+                    customDataTags: [env: 'dev', team: 'backend']
+                )
 		sh 'curl -I http://host.docker.internal:8086/ping'    
             }
         }
