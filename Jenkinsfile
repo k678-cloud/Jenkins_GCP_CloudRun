@@ -70,6 +70,7 @@ pipeline {
 		}
             }
         }
+	}
 	stage('Trivy Security Scan') {
 	    steps {
 	        script {
