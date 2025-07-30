@@ -76,15 +76,6 @@ pipeline {
 		sh '''
   			trivy --severity HIGH,CRITICAL --cache-dir ${WORKSPACE}/.trivy-cache --no-progress --format table -o trivyFSScanReport.html image ${IMAGE_NAME}:${IMAGE_TAG}
      		'''
-            
-	     // influxDbPublisher(
-	     // selectedTarget: 'jenkins-metrics',
-      //        customProjectName: 'MyProject',
-      //        customData: [field_a: 42, field_b: 99],
-      //        customDataTags: [env: 'production'])
-
-		    // jenkins-org
-		    // http://192.168.160.128:8086
 	    }
         }
         stage('Publish Metrics to InfluxDB') {
@@ -92,8 +83,8 @@ pipeline {
                 influxDbPublisher(
                     selectedTarget: 'influxdb',
                     customProjectName: 'jenkins-org',
-                    customData: [scan_status: 1, build_time: 42],
-                    customDataTags: [env: 'dev', team: 'backend']
+                    customData: [critical_vulns: 7, high_vulns: 42],
+                    customDataTags: [scanner: 'trivy', image: 'java-app:15']
                 )
 		sh 'curl -I http://host.docker.internal:8086/ping'    
             }
