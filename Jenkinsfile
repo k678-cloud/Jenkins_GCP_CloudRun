@@ -70,19 +70,22 @@ pipeline {
 		}
             }
         }
-        stage('Trivy Security Scan'){
-            steps {
-                echo 'Scanning Docker Image with Trivy'
-		sh """
-		    trivy image \
-		        --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
-		        --no-progress \
-		        --format table \
-		        -o trivyScanReport.txt \
-		        ${IMAGE_NAME}:${IMAGE_TAG}
-		"""
+	stage('Trivy Security Scan') {
+	    steps {
+	        script {
+	            echo 'Scanning Docker Image with Trivy'
+	            sh """
+	                trivy image \
+	                    --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
+	                    --no-progress \
+	                    --format table \
+	                    -o trivyScanReport.txt \
+	                    ${IMAGE_NAME}:${IMAGE_TAG}
+	            """
+	        }
+	    }
+	}
 
-            }
         }
         stage('Publish Metrics to InfluxDB') {
             steps {
