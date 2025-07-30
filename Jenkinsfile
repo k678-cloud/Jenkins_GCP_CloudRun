@@ -92,8 +92,8 @@ pipeline {
                         trivy image \
                             --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
                             --no-progress \
-                            --format table \
-                            -o trivyScanReport.txt \
+                            --format json \
+                            -o trivyScan.json \
                             ${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
@@ -102,40 +102,63 @@ pipeline {
 
         stage('Publish Metrics to InfluxDB') {
             steps {
-                script {
-                    def summaryLine = sh(script: "grep '^Total:' trivyScanReport.txt", returnStdout: true).trim()
-                    echo "Trivy Summary Line: ${summaryLine}"
+                // script {
+                //     def summaryLine = sh(script: "grep '^Total:' trivyScanReport.txt", returnStdout: true).trim()
+                //     echo "Trivy Summary Line: ${summaryLine}"
 
-                    def matcher = summaryLine =~ /Total: (\\d+) \\(UNKNOWN: (\\d+), LOW: (\\d+), MEDIUM: (\\d+), HIGH: (\\d+), CRITICAL: (\\d+)\\)/
+                //     def matcher = summaryLine =~ /Total: (\\d+) \\(UNKNOWN: (\\d+), LOW: (\\d+), MEDIUM: (\\d+), HIGH: (\\d+), CRITICAL: (\\d+)\\)/
 
-                    if (!matcher) {
-                        error "Failed to parse Trivy summary"
-                    }
+                //     if (!matcher) {
+                //         error "Failed to parse Trivy summary"
+                //     }
 
-                    def total = matcher[0][1]
-                    def unknown = matcher[0][2]
-                    def low = matcher[0][3]
-                    def medium = matcher[0][4]
-                    def high = matcher[0][5]
-                    def critical = matcher[0][6]
+                //     def total = matcher[0][1]
+                //     def unknown = matcher[0][2]
+                //     def low = matcher[0][3]
+                //     def medium = matcher[0][4]
+                //     def high = matcher[0][5]
+                //     def critical = matcher[0][6]
 
-                    influxDbPublisher(
-                        selectedTarget: 'influxdb',
-                        customProjectName: 'jenkins-org',
-                        customData: [
-                            trivy_total: total,
-                            trivy_unknown: unknown,
-                            trivy_low: low,
-                            trivy_medium: medium,
-                            trivy_high: high,
-                            trivy_critical: critical
-                        ],
-                        customDataTags: [
-                            scanner: 'trivy',
-                            image: "${IMAGE_NAME}:${IMAGE_TAG}"
-                        ]
-                    )
-                }
+                //     influxDbPublisher(
+                //         selectedTarget: 'influxdb',
+                //         customProjectName: 'jenkins-org',
+                //         customData: [
+                //             trivy_total: total,
+                //             trivy_unknown: unknown,
+                //             trivy_low: low,
+                //             trivy_medium: medium,
+                //             trivy_high: high,
+                //             trivy_critical: critical
+                //         ],
+                //         customDataTags: [
+                //             scanner: 'trivy',
+                //             image: "${IMAGE_NAME}:${IMAGE_TAG}"
+                //         ]
+                //     )
+                // }
+			script {
+				def trivyOutput = readJSON file: 'trivyScan.json'
+				def counts = [CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0]
+
+				trivyOutput.Results.each { result ->
+					result.Vulnerabilities?.each { vuln ->
+						def severity = vuln.Severity.toUpperCase()
+						if (counts.containsKey(severity)) {
+							counts[severity] += 1
+						}
+					}
+				}
+
+				echo "Vulnerability Counts: ${counts}"
+
+				influxDbPublisher(
+					selectedTarget: 'influxdb',
+					customProjectName: 'jenkins-java-app',
+					customData: counts,
+					customDataTags: [scanner: 'trivy', image: "${IMAGE_NAME}:${IMAGE_TAG}"]
+				)
+			}
+
             }
         }
 
@@ -174,38 +197,38 @@ pipeline {
         stage('Deploy to Cloud Run') {
             steps {
                 echo 'Deploying Image to Google Cloud Run'
-                withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
-                    withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
-                        sh '''
-                            gcloud run deploy $SERVICE_NAME \
-                                --image=$FULL_IMAGE_NAME \
-                                --region=$REGION \
-                                --platform=managed \
-                                --allow-unauthenticated \
-                                --port=8090 \
-                                --memory=512Mi \
-                                --quiet
-                        '''
-                    }
-                }
+                // withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
+                //     withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+                //         sh '''
+                //             gcloud run deploy $SERVICE_NAME \
+                //                 --image=$FULL_IMAGE_NAME \
+                //                 --region=$REGION \
+                //                 --platform=managed \
+                //                 --allow-unauthenticated \
+                //                 --port=8090 \
+                //                 --memory=512Mi \
+                //                 --quiet
+                //         '''
+                //     }
+                // }
             }
         }
 
         stage('Get Cloud Run Service URL') {
             steps {
                 echo 'Getting Cloud Run Service URL'
-                withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
-                    withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
-                        sh '''
-                            SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
-                                --platform managed \
-                                --region $REGION \
-                                --format="value(status.url)")
-                            echo "Service deployed successfully!"
-                            echo "Service URL: $SERVICE_URL"
-                        '''
-                    }
-                }
+                // withCredentials([file(credentialsId: 'gcpjmsa', variable: 'gcpCred')]) {
+                //     withEnv(["GOOGLE_APPLICATION_CREDENTIALS=$gcpCred"]) {
+                //         sh '''
+                //             SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
+                //                 --platform managed \
+                //                 --region $REGION \
+                //                 --format="value(status.url)")
+                //             echo "Service deployed successfully!"
+                //             echo "Service URL: $SERVICE_URL"
+                //         '''
+                //     }
+                // }
             }
         }
     }
