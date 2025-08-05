@@ -8,6 +8,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'sonar7'
         IMAGE_NAME = "java-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_PATH = "${IMAGE_NAME}:${IMAGE_TAG}"
         GCP_PROJECT_ID = "focal-dock-440200-u5"
         FULL_IMAGE_NAME = "us-docker.pkg.dev/${GCP_PROJECT_ID}/java-app-repo-02/${IMAGE_NAME}:${IMAGE_TAG}"
         SERVICE_NAME = "java-app-service"
@@ -83,7 +84,21 @@ pipeline {
                 }
             }
         }
+        
+        stage('Build Image with Kaniko') {
+        steps {
+            echo 'Building Docker image using Kaniko'
+            sh '''
+            mkdir -p /kaniko/.docker
+            echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
 
+            /kaniko/executor \
+                --context . \
+                --dockerfile Dockerfile \
+                --no-push \
+                --tarPath ${TAR_PATH}
+            '''
+        }
         stage('Trivy Security Scan') {
             steps {
                 script {
@@ -98,6 +113,19 @@ pipeline {
                     """
                 }
             }
+        }
+        stage('Scan Image with Trivy') {
+        steps {
+            echo 'Scanning Kaniko-built image tarball with Trivy'
+            sh '''
+            trivy image \
+                --input ${TAR_PATH} \
+                --severity HIGH,CRITICAL \
+                --format json \
+                -o trivyScan.json
+            '''
+            archiveArtifacts artifacts: 'trivyScan.json', allowEmptyArchive: true
+        }
         }
 
         stage('Publish Metrics to InfluxDB') {
