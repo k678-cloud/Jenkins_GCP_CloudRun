@@ -99,6 +99,7 @@ pipeline {
                 --tarPath ${TAR_PATH}
             '''
         }
+        }
         stage('Trivy Security Scan') {
             steps {
                 script {
