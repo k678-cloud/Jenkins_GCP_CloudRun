@@ -85,20 +85,37 @@ pipeline {
             }
         }
         
-        stage('Build Image with Kaniko') {
-        steps {
-            echo 'Building Docker image using Kaniko'
-            sh '''
-            mkdir -p /kaniko/.docker
-            echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+        // stage('Build Image with Kaniko') {
+        // steps {
+        //     echo 'Building Docker image using Kaniko'
+        //     sh '''
+        //     mkdir -p /kaniko/.docker
+        //     echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
 
-            /kaniko/executor \
-                --context . \
-                --dockerfile Dockerfile \
-                --no-push \
-                --tarPath ${TAR_PATH}
-            '''
+        //     /kaniko/executor \
+        //         --context . \
+        //         --dockerfile Dockerfile \
+        //         --no-push \
+        //         --tarPath ${TAR_PATH}
+        //     '''
+        // }
+        stage('Build Image with Kaniko') {
+    steps {
+        echo 'Running Kaniko inside Docker...'
+        script {
+            sh """
+                docker run --rm \
+                  -v "\$(pwd)":/workspace \
+                  gcr.io/kaniko-project/executor:latest \
+                  --dockerfile=Dockerfile \
+                  --context=/workspace \
+                  --no-push \
+                  --tarPath=/workspace/${IMAGE_NAME}-${IMAGE_TAG}.tar
+            """
         }
+    }
+}
+
         }
         stage('Trivy Security Scan') {
             steps {
