@@ -99,6 +99,7 @@ pipeline {
         //         --tarPath ${TAR_PATH}
         //     '''
         // }
+        // }        
         stage('Build Image with Kaniko') {
     steps {
         echo 'Running Kaniko inside Docker...'
@@ -116,7 +117,7 @@ pipeline {
     }
 }
 
-        }
+
         stage('Trivy Security Scan') {
             steps {
                 script {
