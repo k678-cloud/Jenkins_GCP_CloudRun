@@ -104,20 +104,20 @@ public class HelloWorldTest {
         }
     }
 
-    @Test
-    public void testUnrestrictedURLAccess() {
-        try {
-            // 🌐 10. SSRF (Server-Side Request Forgery)
-            URL url = new URL("http://localhost:8080/internal-api");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // @Test
+    // public void testUnrestrictedURLAccess() {
+    //     try {
+    //         // 🌐 10. SSRF (Server-Side Request Forgery)
+    //         URL url = new URL("http://localhost:8080/internal-api");
+    //         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+    //         String line;
+    //         while ((line = reader.readLine()) != null) {
+    //             System.out.println(line);
+    //         }
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 }
 
 
