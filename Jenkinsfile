@@ -63,6 +63,7 @@ pipeline {
                             -Dsonar.host.url=http://192.168.160.128:9000 \
                             -Dsonar.java.binaries=target/classes \
                             -Dsonar.token=$sonarToken
+                            -Dsonar.tags=security
                         '''
                     }
                 }
