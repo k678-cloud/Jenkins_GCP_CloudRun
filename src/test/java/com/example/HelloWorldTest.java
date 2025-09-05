@@ -1,4 +1,8 @@
 package com.example;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,4 +59,33 @@ public class HelloWorldTest {
             e.printStackTrace(); // Poor error handling
         }
     }
+    @badlogin
+    public class VulnerableLogin {
+    public static void main(String[] args) {
+        String username = "admin";
+        String password = "admin123"; // Hardcoded credentials
+
+        String userInput = "' OR '1'='1"; // Simulated malicious input
+
+        try {
+            Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/testdb", "root", "rootpassword");
+
+            Statement stmt = conn.createStatement();
+            String query = "SELECT * FROM users WHERE username = '" + userInput + "' AND password = '" + password + "'";
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next()) {
+                System.out.println("Login successful!");
+            } else {
+                System.out.println("Login failed.");
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            // Poor exception handling
+            System.out.println("Something went wrong.");
+        }
+    }
+}
 }
