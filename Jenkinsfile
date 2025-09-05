@@ -37,15 +37,15 @@ pipeline {
             }
         }
 
-        stage('Maven Build') {
-            steps {
-                echo 'Building Java App with Maven'
-        				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            			sh 'mvn clean package'
-        			}
-				}
-            }
-        }
+    //     stage('Maven Build') {
+    //         steps {
+    //             echo 'Building Java App with Maven'
+    //     				catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+    //         			sh 'mvn clean package'
+    //     			}
+				// }
+    //         }
+    //     }
 
         stage('JUnit Test of Java App') {
             steps {
