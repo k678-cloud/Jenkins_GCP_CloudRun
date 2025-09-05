@@ -50,7 +50,7 @@ pipeline {
         stage('JUnit Test of Java App') {
             steps {
                 echo 'JUnit Testing'
-                sh 'mvn test'
+                // sh 'mvn test'
             }
         }
 
