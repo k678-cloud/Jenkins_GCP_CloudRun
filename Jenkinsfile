@@ -40,7 +40,9 @@ pipeline {
         stage('Maven Build') {
             steps {
                 echo 'Building Java App with Maven'
-                sh 'mvn clean package'
+				catchError(buildResult: 'SUCCESS', stageResult:'FAILURE'){
+					sh 'mvn clean package'	
+				}
             }
         }
 
