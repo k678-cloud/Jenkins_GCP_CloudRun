@@ -59,8 +59,11 @@ public class HelloWorldTest {
             e.printStackTrace(); // Poor error handling
         }
     }
-    @badlogin
-    public class VulnerableLogin {
+    // @badlogin
+    public class HelloWorldTest {
+    public static class VulnerableLogin {
+        // your vulnerable code here
+            public class VulnerableLogin {
     public static void main(String[] args) {
         String username = "admin";
         String password = "admin123"; // Hardcoded credentials
@@ -88,4 +91,7 @@ public class HelloWorldTest {
         }
     }
 }
+    }
+}
+
 }
