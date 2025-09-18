@@ -141,21 +141,21 @@ pipeline {
 }
 
 
-        stage('Trivy Security Scan') {
-            steps {
-                script {
-                    echo 'Scanning Docker Image with Trivy'
-                    sh """
-                        trivy image \
-                            --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
-                            --no-progress \
-                            --format json \
-                            -o trivyScan.json \
-                            ${IMAGE_NAME}:${IMAGE_TAG}
-                    """
-                }
-            }
-        }
+        // stage('Trivy Security Scan') {
+        //     steps {
+        //         script {
+        //             echo 'Scanning Docker Image with Trivy'
+        //             sh """
+        //                 trivy image \
+        //                     --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
+        //                     --no-progress \
+        //                     --format json \
+        //                     -o trivyScan.json \
+        //                     ${IMAGE_NAME}:${IMAGE_TAG}
+        //             """
+        //         }
+        //     }
+        // }
         stage('Scan Image with Trivy') {
         steps {
             echo 'Scanning Kaniko-built image tarball with Trivy'
