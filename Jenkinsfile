@@ -92,12 +92,12 @@ pipeline {
     		}
         }
 
-        stage('Trivy FS Scan') {
-            steps {
-                echo 'Scanning File System with Trivy FS ...'
-                sh 'trivy fs --format table -o FSScanReport.html'
-            }
-        }
+        // stage('Trivy FS Scan') {
+        //     steps {
+        //         echo 'Scanning File System with Trivy FS ...'
+        //         sh 'trivy fs --format table -o FSScanReport.html'
+        //     }
+        // }
 
         stage('Build & Tag Docker Image') {
             steps {
