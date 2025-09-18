@@ -123,52 +123,52 @@ pipeline {
         //     '''
         // }
         // }        
-        stage('Build Image with Kaniko') {
-    steps {
-        echo 'Running Kaniko inside Docker...'
-        script {
-            sh """
-                docker run --rm \
-                  -v "\$(pwd)":/workspace \
-                  gcr.io/kaniko-project/executor:latest \
-                  --dockerfile=Dockerfile \
-                  --context=/workspace \
-                  --no-push \
-                  --tarPath=/workspace/${IMAGE_NAME}-${IMAGE_TAG}.tar
-            """
+//         stage('Build Image with Kaniko') {
+//     steps {
+//         echo 'Running Kaniko inside Docker...'
+//         script {
+//             sh """
+//                 docker run --rm \
+//                   -v "\$(pwd)":/workspace \
+//                   gcr.io/kaniko-project/executor:latest \
+//                   --dockerfile=Dockerfile \
+//                   --context=/workspace \
+//                   --no-push \
+//                   --tarPath=/workspace/${IMAGE_NAME}-${IMAGE_TAG}.tar
+//             """
+//         }
+//     }
+// }
+
+
+        stage('Trivy Security Scan') {
+            steps {
+                script {
+                    echo 'Scanning Docker Image with Trivy'
+                    sh """
+                        trivy image \
+                            --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
+                            --no-progress \
+                            --format json \
+                            -o trivyScan.json \
+                            ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
         }
-    }
-}
-
-
-        // stage('Trivy Security Scan') {
-        //     steps {
-        //         script {
-        //             echo 'Scanning Docker Image with Trivy'
-        //             sh """
-        //                 trivy image \
-        //                     --severity HIGH,CRITICAL,MEDIUM,LOW,UNKNOWN \
-        //                     --no-progress \
-        //                     --format json \
-        //                     -o trivyScan.json \
-        //                     ${IMAGE_NAME}:${IMAGE_TAG}
-        //             """
-        //         }
-        //     }
+        // stage('Scan Image with Trivy') {
+        // steps {
+        //     echo 'Scanning Kaniko-built image tarball with Trivy'
+        //     sh '''
+        //     trivy image \
+        //         --input ${TAR_PATH} \
+        //         --severity HIGH,CRITICAL \
+        //         --format json \
+        //         -o trivyScan.json
+        //     '''
+        //     archiveArtifacts artifacts: 'trivyScan.json', allowEmptyArchive: true
         // }
-        stage('Scan Image with Trivy') {
-        steps {
-            echo 'Scanning Kaniko-built image tarball with Trivy'
-            sh '''
-            trivy image \
-                --input ${TAR_PATH} \
-                --severity HIGH,CRITICAL \
-                --format json \
-                -o trivyScan.json
-            '''
-            archiveArtifacts artifacts: 'trivyScan.json', allowEmptyArchive: true
-        }
-        }
+        // }
 
         stage('Publish Metrics to InfluxDB') {
             steps {
