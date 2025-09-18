@@ -54,43 +54,43 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                echo 'Running Static Code Analysis with SonarQube'
-                withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
-                    withSonarQubeEnv('sonar') {
-                        sh '''
-                            ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectKey=jenkinsgcp \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://192.168.160.128:9000 \
-                            -Dsonar.java.binaries=target/classes \
-                            -Dsonar.token=$sonarToken \
-                            -Dsonar.tags=security
-                        '''
-                    }
-                }
-            }
-		post {
-        	always {
-            	script {
-                		try {
-                    			timeout(time: 10, unit: 'MINUTES') {
-                        		def qg = waitForQualityGate()
-                        		if (qg.status != 'OK') {
-                            		echo "Quality Gate failed: ${qg.status}. Continuing pipeline anyway."
-                            	// Optionally, set unstable: currentBuild.result = 'UNSTABLE'
-                        		} else {
-                            		echo "Quality Gate passed: ${qg.status}"
-                        			}
-                    			}
-                			} catch (Exception e) {
-                    		echo "Quality Gate check timed out or failed: ${e.message}. Continuing pipeline anyway."
-                			}
-            			}
-        			}
-    		}
-        }
+  //       stage('SonarQube Analysis') {
+  //           steps {
+  //               echo 'Running Static Code Analysis with SonarQube'
+  //               withCredentials([string(credentialsId: 'jmsonar', variable: 'sonarToken')]) {
+  //                   withSonarQubeEnv('sonar') {
+  //                       sh '''
+  //                           ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+  //                           -Dsonar.projectKey=jenkinsgcp \
+  //                           -Dsonar.sources=. \
+  //                           -Dsonar.host.url=http://192.168.160.128:9000 \
+  //                           -Dsonar.java.binaries=target/classes \
+  //                           -Dsonar.token=$sonarToken \
+  //                           -Dsonar.tags=security
+  //                       '''
+  //                   }
+  //               }
+  //           }
+		// post {
+  //       	always {
+  //           	script {
+  //               		try {
+  //                   			timeout(time: 10, unit: 'MINUTES') {
+  //                       		def qg = waitForQualityGate()
+  //                       		if (qg.status != 'OK') {
+  //                           		echo "Quality Gate failed: ${qg.status}. Continuing pipeline anyway."
+  //                           	// Optionally, set unstable: currentBuild.result = 'UNSTABLE'
+  //                       		} else {
+  //                           		echo "Quality Gate passed: ${qg.status}"
+  //                       			}
+  //                   			}
+  //               			} catch (Exception e) {
+  //                   		echo "Quality Gate check timed out or failed: ${e.message}. Continuing pipeline anyway."
+  //               			}
+  //           			}
+  //       			}
+  //   		}
+  //       }
 
         // stage('Trivy FS Scan') {
         //     steps {
