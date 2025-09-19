@@ -22,7 +22,14 @@ public class HelloWorldTest {
     
     @Autowired
     private HelloWorld app;
-    
+    # MongoDB
+MONGODB_URI=mongodb+srv://user:password@cluster0.mongodb.net/test?retryWrites=true&w=majority
+
+# MySQL
+MYSQL_PASSWORD=supersecret123!
+
+# Generic High Entropy
+SECRET_KEY=9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c
     @Test
     public void testGetMessage() {
         assertEquals("Hello, welcome to iQuant YouTube Channel!", app.getMessage());
