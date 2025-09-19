@@ -341,6 +341,18 @@ Add webhook
 2. Delete the Artifact Registry Repo and Image
 3. Delete the GCP Service Account
 4. Stop and Delete Jenkins & SonarQube containers
+# Google Cloud
+GCP_API_KEY=AIzaSyA-EXAMPLEKEY1234567890abcdefg
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_4eC39HqLyjWDarjtT1zdp7dc
+
+# Twilio
+TWILIO_AUTH_TOKEN=1234567890abcdef1234567890abcdef
+
+# Slack
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+
 
 
 # LIKE, COMMENT, & SUBSCRIBE To iQuant on YouTube !!!
